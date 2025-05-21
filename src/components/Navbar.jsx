@@ -1,43 +1,95 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Sun, Moon } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import logo from '../assets/room-mate-logo.png'; // ✅ correct way to import image
+import { Link, useNavigate } from 'react-router-dom';
+import logo from '../assets/room-mate-logo.png';
+import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 
 const Navbar = () => {
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+  const [user, setUser] = useState(null);
+  const [imgError, setImgError] = useState(false);
+  const navigate = useNavigate();
+
+  const auth = getAuth();
+
+  const [popupOpen, setPopupOpen] = useState(false);
+  const popupRef = useRef(null);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (popupRef.current && !popupRef.current.contains(event.target)) {
+        setPopupOpen(false);
+      }
+    };
+    if (popupOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [popupOpen]);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setImgError(false); // reset image error on user change
+    });
+    return unsubscribe;
+  }, [auth]);
 
   const handleToggleTheme = (e) => {
-    
-    if (e.target.checked) {
-      setTheme('dark');
-      
-    } else {
-      setTheme('light');
-    }
-  }
+    setTheme(e.target.checked ? 'dark' : 'light');
+  };
 
   useEffect(() => {
     localStorage.setItem('theme', theme);
-    const localTheme = localStorage.getItem('theme');
-    document.querySelector('html').setAttribute('data-theme', localTheme);
-  },[theme]);
-  
+    document.querySelector('html').setAttribute('data-theme', theme);
+  }, [theme]);
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    navigate('/login');
+  };
+
+  const getInitial = () => {
+    if (user?.displayName) return user.displayName.charAt(0).toUpperCase();
+    if (user?.email) return user.email.charAt(0).toUpperCase();
+    return '?';
+  };
 
   return (
-    <div className="navbar bg-gray-100 text-black shadow-md dark:bg-gray-900 dark:text-white ">
-
+    <div className="navbar bg-gray-100 text-black shadow-md dark:bg-gray-900 dark:text-white" style={{ height: '64px' }}>
       <div className="navbar-start">
         <div className="dropdown">
           <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            {/* Hamburger icon */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" />
             </svg>
           </div>
-          <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-            <li><Link to="/" className=''>Home</Link></li>
-            <li><Link to="/add-listing">Find Roommate</Link></li>
-            <li><Link to="/browse">Browse Listing</Link></li>
-            <li><Link to="/my-listings">My Listings</Link></li>
+          <ul
+            tabIndex={0}
+            className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
+          >
+            <li>
+              <Link to="/">Home</Link>
+            </li>
+            <li>
+              <Link to="/add-listing">Find Roommate</Link>
+            </li>
+            <li>
+              <Link to="/browse">Browse Listing</Link>
+            </li>
+            <li>
+              <Link to="/my-listings">My Listings</Link>
+            </li>
           </ul>
         </div>
         <Link to="/" className="flex items-center gap-2 ml-2">
@@ -48,40 +100,92 @@ const Navbar = () => {
 
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1">
-          <li><Link to="/">Home</Link></li>
-          <li><Link to="/add-listing">Find Roommate</Link></li>
-          <li><Link to="/browse">Browse Listing</Link></li>
-          <li><Link to="/my-listings">My Listings</Link></li>
+          <li>
+            <Link to="/">Home</Link>
+          </li>
+          <li>
+            <Link to="/add-listing">Find Roommate</Link>
+          </li>
+          <li>
+            <Link to="/browse">Browse Listing</Link>
+          </li>
+          <li>
+            <Link to="/my-listings">My Listings</Link>
+          </li>
         </ul>
       </div>
 
-      <div className="navbar-end flex items-center gap-2">
-        {/* Theme Toggle Button */}
+      <div className="navbar-end flex items-center gap-4 relative">
+        {/* Theme Toggle */}
         <label className="swap swap-rotate">
-          {/* this hidden checkbox controls the state */}
-          <input onChange={handleToggleTheme} type="checkbox" className="theme-controller" value="synthwave" checked={theme === "light" ? false : true}/>
-
-          {/* sun icon */}
-          <svg
-            className="swap-off h-10 w-10 fill-current"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24">
-            <path
-              d="M5.64,17l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,5.64,17ZM5,12a1,1,0,0,0-1-1H3a1,1,0,0,0,0,2H4A1,1,0,0,0,5,12Zm7-7a1,1,0,0,0,1-1V3a1,1,0,0,0-2,0V4A1,1,0,0,0,12,5ZM5.64,7.05a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.41l-.71-.71A1,1,0,0,0,4.93,6.34Zm12,.29a1,1,0,0,0,.7-.29l.71-.71a1,1,0,1,0-1.41-1.41L17,5.64a1,1,0,0,0,0,1.41A1,1,0,0,0,17.66,7.34ZM21,11H20a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm-9,8a1,1,0,0,0-1,1v1a1,1,0,0,0,2,0V20A1,1,0,0,0,12,19ZM18.36,17A1,1,0,0,0,17,18.36l.71.71a1,1,0,0,0,1.41,0,1,1,0,0,0,0-1.41ZM12,6.5A5.5,5.5,0,1,0,17.5,12,5.51,5.51,0,0,0,12,6.5Zm0,9A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z" />
-          </svg>
-
-          {/* moon icon */}
-          <svg
-            className="swap-on h-10 w-10 fill-current"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24">
-            <path
-              d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z" />
-          </svg>
+          <input
+            onChange={handleToggleTheme}
+            type="checkbox"
+            className="theme-controller"
+            checked={theme === 'dark'}
+          />
+          <Sun className="swap-off h-10 w-10 fill-current" />
+          <Moon className="swap-on h-10 w-10 fill-current" />
         </label>
 
-        <Link to="/login" className="btn btn-outline btn-sm">Sign In</Link>
-        <Link to="/signup" className="btn btn-primary btn-sm">Sign Up</Link>
+        {user ? (
+           <div
+            className="relative flex items-center cursor-pointer select-none group"
+            onClick={() => setPopupOpen((prev) => !prev)}
+            ref={popupRef}
+          >
+            {/* Avatar or initial */}
+            {!imgError && user.photoURL ? (
+              <img
+                src={user.photoURL}
+                alt={user.displayName || 'User'}
+                className="h-10 w-10 rounded-full object-cover border border-gray-300 dark:border-gray-600"
+                onError={() => setImgError(true)}
+                title={user.displayName || user.email}
+              />
+            ) : (
+              <div
+                className="h-10 w-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-lg border border-gray-300 dark:border-gray-600"
+                title={user.displayName || user.email}
+              >
+                {getInitial()}
+              </div>
+            )}
+
+            {/* Hover popup */}
+             <div
+              className={`absolute right-2 mt-40 w-56 bg-white dark:bg-gray-800 rounded shadow-lg p-4 z-20 text-sm text-gray-900 dark:text-gray-100
+                opacity-0 pointer-events-none
+                transition-opacity
+                group-hover:opacity-100  group-hover:pointer-events-auto
+                ${popupOpen ? 'opacity-100 pointer-events-auto' : ''}
+              `}
+            >
+              <p className="font-semibold truncate" title={user.displayName || ''}>
+                {user.displayName || 'No name'}
+              </p>
+              <p className="truncate mb-4" title={user.email}>
+                {user.email}
+              </p>
+              <button
+                onClick={handleLogout}
+                className="btn btn-outline btn-sm w-full"
+                type="button"
+              >
+                Log out
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <Link to="/login" className="btn btn-outline btn-sm">
+              Sign In
+            </Link>
+            <Link to="/signup" className="btn btn-primary btn-sm">
+              Sign Up
+            </Link>
+          </>
+        )}
       </div>
     </div>
   );

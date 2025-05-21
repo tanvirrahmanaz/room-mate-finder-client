@@ -1,7 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
+import { getAuth } from 'firebase/auth';
 
-const AddListing = ({ userEmail, userName }) => {
+const AddListing = () => {
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  const [userEmail, setUserEmail] = useState('');
+  const [userName, setUserName] = useState('');
+
+  useEffect(() => {
+    if (user) {
+      setUserEmail(user.email);
+      setUserName(user.displayName || 'No name');
+    }
+  }, [user]);
+
   const [formData, setFormData] = useState({
     title: '',
     location: '',
@@ -18,30 +32,27 @@ const AddListing = ({ userEmail, userName }) => {
   });
   const [loading, setLoading] = useState(false);
 
-  // Handle input changes
   const handleChange = (e) => {
-  const { name, value, checked } = e.target;
-  if (name in formData.lifestylePrefs) {
-    setFormData((prev) => ({
-      ...prev,
-      lifestylePrefs: {
-        ...prev.lifestylePrefs,
-        [name]: checked,
-      },
-    }));
-  } else if (name === 'availability') {
-    setFormData((prev) => ({ ...prev, availability: value === 'Available' }));
-  } else {
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  }
-};
+    const { name, value, checked } = e.target;
+    if (name in formData.lifestylePrefs) {
+      setFormData((prev) => ({
+        ...prev,
+        lifestylePrefs: {
+          ...prev.lifestylePrefs,
+          [name]: checked,
+        },
+      }));
+    } else if (name === 'availability') {
+      setFormData((prev) => ({ ...prev, availability: value === 'Available' }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+  };
 
-  // Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // Prepare data to send
     const dataToSend = {
       ...formData,
       userEmail,
@@ -82,7 +93,6 @@ const AddListing = ({ userEmail, userName }) => {
       setLoading(false);
     }
   };
-
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white dark:bg-gray-800 rounded shadow-md mt-6">
       <Toaster position="top-right" />
@@ -226,12 +236,11 @@ const AddListing = ({ userEmail, userName }) => {
           </select>
         </div>
 
-        {/* User Email (read-only) */}
         <div>
           <label className="block font-medium text-gray-700 dark:text-gray-300 mb-1">User Email</label>
           <input
             type="email"
-            value={userEmail || ''}
+            value={userEmail}
             readOnly
             disabled
             className="input input-bordered w-full bg-gray-200 dark:bg-gray-600 cursor-not-allowed"
@@ -243,10 +252,11 @@ const AddListing = ({ userEmail, userName }) => {
           <label className="block font-medium text-gray-700 dark:text-gray-300 mb-1">User Name</label>
           <input
             type="text"
-            value={userName || ''}
+            value={userName}
             readOnly
             disabled
-            className="input input-bordered w-full bg-gray-200 dark:bg-gray-600 cursor-not-allowed"
+            className="input input-bordered w-full bg-gray-200 dark:bg-gray-600 cursor-not-allowed" 
+            placeholder='User Name'
           />
         </div>
 

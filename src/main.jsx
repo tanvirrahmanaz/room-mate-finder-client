@@ -11,6 +11,8 @@ import MainLayout from './layout/MainLayout';
 import Login from './components/Login';
 import Register from './components/Register';
 import AddListing from './components/AddListing';
+import BrowseListings from './components/BrowseListing';
+import MyListings from './components/MyListings';
 
 const router = createBrowserRouter([
   {
@@ -28,6 +30,14 @@ const router = createBrowserRouter([
       {
         path: '/add-listing',
         element: <AddListing />,
+      },
+      {
+        path: 'browse',
+        element: <BrowseListings />
+      },
+      {
+        path: 'my-listings',
+        element: <MyListings />
       }
     ],
   },

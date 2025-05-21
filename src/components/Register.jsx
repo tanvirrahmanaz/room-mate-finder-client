@@ -1,13 +1,24 @@
 import React, { useState } from 'react';
-import { FcGoogle } from 'react-icons/fc';
-import { Link } from 'react-router-dom';
+import { auth } from '../firebase/firebase.config';
+import {
+  createUserWithEmailAndPassword,
+  updateProfile,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from 'firebase/auth';
+import { useNavigate, Link } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
+import { FcGoogle } from 'react-icons/fc';
 
 const Register = () => {
   const [name, setName] = useState('');
   const [photoURL, setPhotoURL] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+  const googleProvider = new GoogleAuthProvider();
 
   const validatePassword = (pwd) => {
     if (pwd.length < 6) {
@@ -25,23 +36,48 @@ const Register = () => {
     return true;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validatePassword(password)) return;
 
-    // Frontend only: simulate success
-    toast.success('Registration successful!');
+    setLoading(true);
+    try {
+      // Create user with email and password
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-    // Clear form
-    setName('');
-    setPhotoURL('');
-    setEmail('');
-    setPassword('');
+      // Update profile with name and photoURL
+      await updateProfile(userCredential.user, {
+        displayName: name,
+        photoURL: photoURL || null,
+      });
+
+      toast.success('Registration successful!');
+      navigate('/'); // Redirect after signup, adjust as needed
+
+      // Clear form
+      setName('');
+      setPhotoURL('');
+      setEmail('');
+      setPassword('');
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleGoogleLogin = () => {
-    toast('Google login clicked (frontend only)');
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    try {
+      await signInWithPopup(auth, googleProvider);
+      toast.success('Login successful!');
+      navigate('/');
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -57,6 +93,7 @@ const Register = () => {
             <input
               type="text"
               required
+              disabled={loading}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="input input-bordered w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
@@ -67,6 +104,7 @@ const Register = () => {
             <label className="block mb-1 font-medium text-gray-700 dark:text-gray-300">Photo URL</label>
             <input
               type="url"
+              disabled={loading}
               value={photoURL}
               onChange={(e) => setPhotoURL(e.target.value)}
               className="input input-bordered w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
@@ -78,6 +116,7 @@ const Register = () => {
             <input
               type="email"
               required
+              disabled={loading}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="input input-bordered w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
@@ -89,6 +128,7 @@ const Register = () => {
             <input
               type="password"
               required
+              disabled={loading}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="input input-bordered w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
@@ -97,9 +137,10 @@ const Register = () => {
           </div>
           <button
             type="submit"
+            disabled={loading}
             className="btn btn-primary w-full hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors"
           >
-            Register
+            {loading ? 'Registering...' : 'Register'}
           </button>
         </form>
 
@@ -107,6 +148,7 @@ const Register = () => {
 
         <button
           onClick={handleGoogleLogin}
+          disabled={loading}
           className="btn btn-outline btn-block flex items-center justify-center gap-2 mt-4"
         >
           <FcGoogle className="text-2xl" />
