@@ -1,6 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { StrictMode } from 'react';
+import AuthProvider from './context/AuthContext'; // ✅ Now default export works
+
+
 import {
   createBrowserRouter,
   RouterProvider,
@@ -66,7 +69,9 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById('root')).render(
   <StrictMode>
 
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
 
   </StrictMode>
 );

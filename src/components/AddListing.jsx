@@ -1,20 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
-import { getAuth } from 'firebase/auth';
+import { AuthContext } from '../context/AuthContext';
 
 const AddListing = () => {
-  const auth = getAuth();
-  const user = auth.currentUser;
-
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [userEmail, setUserEmail] = useState('');
   const [userName, setUserName] = useState('');
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [formLoading, setFormLoading] = useState(false);
 
+  // ✅ Handle initial loading and authentication check
   useEffect(() => {
-    if (user) {
-      setUserEmail(user.email);
-      setUserName(user.displayName || 'No name');
-    }
-  }, [user]);
+    const checkAuth = async () => {
+      // Show loading for at least 1 second for better UX
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      if (!user) {
+        toast.error("You must be logged in to add a listing");
+        navigate('/login');
+      } else {
+        setUserEmail(user.email);
+        setUserName(user.displayName || 'No name');
+      }
+      
+      setInitialLoading(false);
+    };
+
+    checkAuth();
+  }, [user, navigate]);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -30,7 +45,6 @@ const AddListing = () => {
     contactInfo: '',
     availability: true,
   });
-  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, checked } = e.target;
@@ -51,8 +65,7 @@ const AddListing = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-
+    setFormLoading(true);
     const dataToSend = {
       ...formData,
       userEmail,
@@ -90,13 +103,81 @@ const AddListing = () => {
       toast.error('Error connecting to server');
       console.error(error);
     } finally {
-      setLoading(false);
+      setFormLoading(false);
     }
   };
+
+  // Loading screen component
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-gray-900">
+        <Toaster />
+        <div className="text-center">
+          {/* Spinner */}
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400 mb-4"></div>
+          
+          {/* Loading text */}
+          <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            Loading Add Listing...
+          </h2>
+          
+          {/* Sub text */}
+          <p className="text-gray-500 dark:text-gray-400">
+            Checking authentication status
+          </p>
+          
+          {/* Loading dots animation */}
+          <div className="mt-4 flex justify-center space-x-1">
+            <div className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+            <div className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If user is not authenticated after loading
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center text-center p-6 bg-white dark:bg-gray-900">
+        <Toaster />
+        <div className="max-w-md mx-auto">
+          <div className="mb-6">
+            <div className="w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+              </svg>
+            </div>
+          </div>
+          
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+            Authentication Required
+          </h2>
+          
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            You need to log in to add a listing. Please sign in to continue.
+          </p>
+          
+          <Link
+            to="/login"
+            className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
+          >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+            </svg>
+            Go to Login
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white dark:bg-gray-800 rounded shadow-md mt-6">
       <Toaster position="top-right" />
       <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Add a Roommate Listing</h2>
+      
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Title */}
         <div>
@@ -236,6 +317,7 @@ const AddListing = () => {
           </select>
         </div>
 
+        {/* User Email (read-only) */}
         <div>
           <label className="block font-medium text-gray-700 dark:text-gray-300 mb-1">User Email</label>
           <input
@@ -263,10 +345,17 @@ const AddListing = () => {
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={loading}
-          className={`btn btn-primary w-full mt-4 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          disabled={formLoading}
+          className={`btn btn-primary w-full mt-4 ${formLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
-          {loading ? 'Adding...' : 'Add'}
+          {formLoading ? (
+            <div className="flex items-center">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              Adding...
+            </div>
+          ) : (
+            'Add Listing'
+          )}
         </button>
       </form>
     </div>
