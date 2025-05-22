@@ -13,12 +13,18 @@ import Register from './components/Register';
 import AddListing from './components/AddListing';
 import BrowseListings from './components/BrowseListing';
 import MyListings from './components/MyListings';
+import Home from './components/Home';
+import NotFound from './pages/NotFound';
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <MainLayout />, // must include <Outlet />
     children: [
+      {
+        path: '/',
+        element: <Home /> // ✅ This is what shows at http://localhost:5173/
+      },
       {
         path: '/login',
         element: <Login />, // ✅ login must be inside children
@@ -38,7 +44,11 @@ const router = createBrowserRouter([
       {
         path: 'my-listings',
         element: <MyListings />
-      }
+      },
+      {
+        path: '*',
+        element: <NotFound></NotFound>
+      },
     ],
   },
 ]);
