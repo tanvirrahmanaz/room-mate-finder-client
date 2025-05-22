@@ -64,56 +64,57 @@ const RoomDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useContext(AuthContext);
+
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
   const [likeLoading, setLikeLoading] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [hasLiked, setHasLiked] = useState(false);
   const [showContact, setShowContact] = useState(false);
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('theme') || 'light';
-  });
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
 
-  // Listen for theme changes
+  // Listen for theme changes and apply to document
   useEffect(() => {
     const handleThemeChange = () => {
       const savedTheme = localStorage.getItem('theme') || 'light';
       setTheme(savedTheme);
-      // Apply theme to document
       if (savedTheme === 'dark') {
         document.documentElement.classList.add('dark');
       } else {
         document.documentElement.classList.remove('dark');
       }
     };
-    handleThemeChange(); // Initial call
+
+    handleThemeChange();
     window.addEventListener('storage', handleThemeChange);
     const interval = setInterval(handleThemeChange, 100);
+
     return () => {
       window.removeEventListener('storage', handleThemeChange);
       clearInterval(interval);
     };
   }, []);
 
-  // Fetch room data and user's like status
+  // Fetch room details and like status
   useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      toast.error('You must be logged in to view room details');
+      navigate('/login');
+      return;
+    }
+
     const fetchRoomData = async () => {
-      if (authLoading) return; // Wait for auth to load
-
-      if (!user) {
-        toast.error("You must be logged in to view room details");
-        navigate('/login');
-        return;
-      }
-
       try {
         setLoading(true);
+        const token = localStorage.getItem('token');
+
 
         // Fetch room details
         const roomResponse = await fetch(`http://localhost:3000/rooms/${id}`, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json'
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
           }
         });
 
@@ -128,30 +129,25 @@ const RoomDetails = () => {
         setRoom(roomData);
         setLikeCount(roomData.likeCount || 0);
 
-        // Check if current user has liked this room
+        // Fetch like status for current users
         const likeStatusResponse = await fetch(`http://localhost:3000/rooms/${id}/like-status`, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json'
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
           }
         });
 
         if (likeStatusResponse.ok) {
           const likeStatus = await likeStatusResponse.json();
           setHasLiked(likeStatus.hasLiked);
-          setLikeCount(likeStatus.likeCount); // Use the count from backend
-          setShowContact(likeStatus.hasLiked); // Show contact if user has already liked
+          setLikeCount(likeStatus.likeCount || roomData.likeCount || 0);
+          setShowContact(likeStatus.hasLiked);
         } else {
           console.warn('Could not fetch like status');
         }
-
       } catch (err) {
         console.error('Failed to load room details:', err);
-        if (err.message === 'Room not found') {
-          toast.error('Room not found');
-        } else {
-          toast.error('Failed to load room details');
-        }
+        toast.error(err.message || 'Failed to load room details');
       } finally {
         setLoading(false);
       }
@@ -160,39 +156,37 @@ const RoomDetails = () => {
     fetchRoomData();
   }, [id, user, authLoading, navigate]);
 
+  // Handle like/unlike toggle
   const handleLikeToggle = async () => {
+    console.log('Like button clicked');
     if (!user) {
-      toast.error("You must be logged in to show interest in rooms");
+      toast.error('You must be logged in to show interest in rooms');
       return;
     }
-
-    if (likeLoading) return; // Prevent multiple clicks
+    if (likeLoading) return;
 
     try {
       setLikeLoading(true);
+      const token = localStorage.getItem('token');
+      console.log('Token sent:', token);
       const method = hasLiked ? 'DELETE' : 'POST';
 
       const response = await fetch(`http://localhost:3000/rooms/${id}/like`, {
-        method: method,
+        method,
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-        },
+        }
       });
 
       if (response.ok) {
         const result = await response.json();
-
-        // Update state based on backend response
         setLikeCount(result.likeCount);
         setHasLiked(result.hasLiked);
         setShowContact(result.hasLiked);
-
-        if (result.hasLiked) {
-          toast.success('Thank you for showing interest! Contact info revealed.');
-        } else {
-          toast.success('Interest removed');
-        }
+        toast.success(result.hasLiked
+          ? 'Thank you for showing interest! Contact info revealed.'
+          : 'Interest removed');
       } else {
         const error = await response.json();
         toast.error(error.message || 'Failed to update interest status');
@@ -204,7 +198,6 @@ const RoomDetails = () => {
       setLikeLoading(false);
     }
   };
-
   // Show loading screen while auth is loading
   if (authLoading) {
     return (
@@ -336,8 +329,8 @@ const RoomDetails = () => {
               <Link
                 to="/"
                 className={`inline-flex items-center px-6 py-3 font-medium rounded-lg transition-colors duration-200 ${theme === 'dark'
-                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                  ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                  : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
                   }`}
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -439,32 +432,40 @@ const RoomDetails = () => {
                     </div>
                     <button
                       onClick={handleLikeToggle}
-                      disabled={loading}
+                      disabled={likeLoading}
                       data-tooltip-id="like-tooltip"
                       data-tooltip-content={hasLiked ? "Click to remove interest" : "Click to show interest and reveal contact"}
-                      className={`px-8 py-3 rounded-full font-medium text-white transition-all duration-300 transform hover:scale-105 shadow-lg ${loading
-                          ? 'bg-gray-400 cursor-not-allowed'
-                          : hasLiked
-                            ? 'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600'
-                            : 'bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 hover:shadow-xl'
+                      className={`px-8 py-3 rounded-full font-medium text-white transition-all duration-300 transform hover:scale-105 shadow-lg ${likeLoading
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : hasLiked
+                          ? 'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600'
+                          : 'bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 hover:shadow-xl'
                         }`}
                     >
-                      {loading ? '⏳ Processing...' : hasLiked ? '❤️ Interested' : '🤍 Show Interest'}
+                      {likeLoading ? '⏳ Processing...' : hasLiked ? '❤️ Interested' : '🤍 Show Interest'}
                     </button>
-                    <Tooltip id="like-tooltip" className="z-50" />
                   </div>
+
                 </Bounce>
 
                 {/* Contact Information - Only show if user has liked */}
                 {showContact && (
-                  <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                    <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">
+                  <div className={`mt-6 p-4 rounded-lg border
+    ${theme === 'dark'
+                      ? 'bg-green-900/30 border-green-700 text-green-300'
+                      : 'bg-green-50 border-green-200 text-green-800'
+                    }`}
+                  >
+                    <h3 className="text-lg font-semibold mb-2">
                       🎉 Contact Information Revealed!
                     </h3>
-                    <div className="space-y-2 text-green-700 dark:text-green-300">
-                      <p><strong>Email:</strong> {room?.contactEmail || room?.userEmail}</p>
-                      <p><strong>Phone:</strong> {room?.contactPhone || 'Not provided'}</p>
-                      <p><strong>WhatsApp:</strong> {room?.whatsapp || 'Not provided'}</p>
+                    <div className="space-y-2">
+                      <p>
+                        <strong>Email:</strong> {room?.contactInfo || room?.userEmail}
+                      </p>
+                      <p>
+                        <strong>Phone:</strong> {room?.contactNumber || 'Not provided'}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -609,8 +610,8 @@ const RoomDetails = () => {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 
 };
