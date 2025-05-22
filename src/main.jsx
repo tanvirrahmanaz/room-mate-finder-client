@@ -15,6 +15,8 @@ import BrowseListings from './components/BrowseListing';
 import MyListings from './components/MyListings';
 import Home from './components/Home';
 import NotFound from './pages/NotFound';
+import UpdateListing from './components/UpdateListing';
+import RoomDetails from './components/RoomDetails';
 
 const router = createBrowserRouter([
   {
@@ -49,6 +51,14 @@ const router = createBrowserRouter([
         path: '*',
         element: <NotFound></NotFound>
       },
+      { path: '/details/:id', 
+        element: <RoomDetails></RoomDetails>
+      },
+      {
+        path: '/update/:id',
+        element: <UpdateListing></UpdateListing>
+      },
+
     ],
   },
 ]);
