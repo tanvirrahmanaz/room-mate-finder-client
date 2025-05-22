@@ -11,6 +11,12 @@ const RoomDetails = () => {
   const [loading, setLoading] = useState(true);
   const [initialLoading, setInitialLoading] = useState(true);
 
+  const [post, setPost] = useState(null);
+  const [likeCount, setLikeCount] = useState(0);
+  const [hasLiked, setHasLiked] = useState(false);
+  const [showContactNumber, setShowContactNumber] = useState(false);
+  const [liking, setLiking] = useState(false);
+
   // ✅ Authentication check with loading
   useEffect(() => {
     const checkAuthAndFetch = async () => {
@@ -143,7 +149,7 @@ const RoomDetails = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 mt-6">
+    <div className="mt-6 px-20">
       <Toaster position="top-right" />
 
       {/* Breadcrumb */}

@@ -20,6 +20,7 @@ import Home from './components/Home';
 import NotFound from './pages/NotFound';
 import UpdateListing from './components/UpdateListing';
 import RoomDetails from './components/RoomDetails';
+import { ThemeProvider } from './context/ThemeContext'; // ✅ Now default export works
 
 const router = createBrowserRouter([
   {
@@ -68,10 +69,11 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <StrictMode>
-
+     <ThemeProvider>
     <AuthProvider>
       <RouterProvider router={router} />
     </AuthProvider>
+    </ThemeProvider>
 
   </StrictMode>
 );
