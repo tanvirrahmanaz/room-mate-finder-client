@@ -16,15 +16,15 @@ const RoomDetails = () => {
     const checkAuthAndFetch = async () => {
       // Show loading for better UX
       await new Promise(resolve => setTimeout(resolve, 800));
-      
+
       if (!user) {
         toast.error("You must be logged in to view room details");
         navigate('/login');
         return;
       }
-      
+
       setInitialLoading(false);
-      
+
       // Fetch room details if user is authenticated
       try {
         const response = await fetch(`http://localhost:3000/rooms/${id}`);
@@ -56,8 +56,8 @@ const RoomDetails = () => {
           </p>
           <div className="mt-4 flex justify-center space-x-1">
             <div className="w-2 h-2 bg-indigo-600 dark:bg-indigo-400 rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-indigo-600 dark:bg-indigo-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-            <div className="w-2 h-2 bg-indigo-600 dark:bg-indigo-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+            <div className="w-2 h-2 bg-indigo-600 dark:bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+            <div className="w-2 h-2 bg-indigo-600 dark:bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
           </div>
         </div>
       </div>
@@ -145,14 +145,14 @@ const RoomDetails = () => {
   return (
     <div className="max-w-4xl mx-auto p-6 mt-6">
       <Toaster position="top-right" />
-      
+
       {/* Breadcrumb */}
       <nav className="flex mb-6" aria-label="Breadcrumb">
         <ol className="inline-flex items-center space-x-1 md:space-x-3">
           <li className="inline-flex items-center">
             <Link to="/" className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
               <svg className="w-3 h-3 mr-2.5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
+                <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z" />
               </svg>
               Home
             </Link>
@@ -231,11 +231,10 @@ const RoomDetails = () => {
                       </svg>
                       <span className="font-medium text-gray-700 dark:text-gray-300">Availability</span>
                     </div>
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                      room.availability 
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                    }`}>
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${room.availability
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                      : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                      }`}>
                       <span className={`w-2 h-2 mr-2 rounded-full ${room.availability ? 'bg-green-400' : 'bg-red-400'}`}></span>
                       {room.availability ? 'Available Now' : 'Not Available'}
                     </span>
@@ -252,29 +251,26 @@ const RoomDetails = () => {
                   Lifestyle Preferences
                 </h2>
                 <div className="flex flex-wrap gap-3">
-                  <div className={`flex items-center px-4 py-2 rounded-lg ${
-                    room.lifestylePrefs?.pets 
-                      ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' 
-                      : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
-                  }`}>
+                  <div className={`flex items-center px-4 py-2 rounded-lg ${room.lifestylePrefs?.pets
+                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                    : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                    }`}>
                     <span className="text-lg mr-2">🐕</span>
                     <span className="font-medium">Pets {room.lifestylePrefs?.pets ? 'Welcome' : 'Not Allowed'}</span>
                   </div>
-                  
-                  <div className={`flex items-center px-4 py-2 rounded-lg ${
-                    room.lifestylePrefs?.smoking 
-                      ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' 
-                      : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
-                  }`}>
+
+                  <div className={`flex items-center px-4 py-2 rounded-lg ${room.lifestylePrefs?.smoking
+                    ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
+                    : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                    }`}>
                     <span className="text-lg mr-2">🚬</span>
                     <span className="font-medium">Smoking {room.lifestylePrefs?.smoking ? 'Allowed' : 'Not Allowed'}</span>
                   </div>
-                  
-                  <div className={`flex items-center px-4 py-2 rounded-lg ${
-                    room.lifestylePrefs?.nightOwl 
-                      ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' 
-                      : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
-                  }`}>
+
+                  <div className={`flex items-center px-4 py-2 rounded-lg ${room.lifestylePrefs?.nightOwl
+                    ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                    : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                    }`}>
                     <span className="text-lg mr-2">🌙</span>
                     <span className="font-medium">Night Owl {room.lifestylePrefs?.nightOwl ? 'Friendly' : 'Quiet Hours'}</span>
                   </div>
@@ -307,7 +303,7 @@ const RoomDetails = () => {
                   </svg>
                   Contact Information
                 </h3>
-                
+
                 <div className="space-y-4">
                   <div className="flex items-center p-3 bg-white dark:bg-gray-600 rounded-lg">
                     <svg className="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -330,14 +326,27 @@ const RoomDetails = () => {
                   </div>
 
                   <div className="flex items-center p-3 bg-white dark:bg-gray-600 rounded-lg">
-                    <svg className="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                    <svg
+                      className="w-5 h-5 mr-3 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                      ></path>
                     </svg>
-                    <div>
+                    <div className="overflow-x-auto max-w-full">
                       <div className="text-sm text-gray-500 dark:text-gray-400">Contact</div>
-                      <div className="font-medium text-gray-900 dark:text-white">{room.contactInfo}</div>
+                      <div className="font-medium text-gray-900 dark:text-white break-words">
+                        {room.contactInfo}
+                      </div>
                     </div>
                   </div>
+
                 </div>
 
                 {/* Action Buttons */}
@@ -348,7 +357,7 @@ const RoomDetails = () => {
                     </svg>
                     Send Email
                   </button>
-                  
+
                   <button className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center">
                     <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
@@ -386,7 +395,7 @@ const RoomDetails = () => {
       {/* Back Button */}
       <div className="mt-6 text-center">
         <Link
-          to="/browse-listings"
+          to="/browse"
           className="inline-flex items-center px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors duration-200"
         >
           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -190,7 +190,7 @@ const FeaturedRoommates = () => {
                 navigate('/login');
                 return;
               }
-              navigate('/browse-listings');
+              navigate('/browse');
             }}
             className="inline-flex items-center px-6 py-3 bg-gray-800 hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-medium rounded-lg transition-colors duration-200"
           >
