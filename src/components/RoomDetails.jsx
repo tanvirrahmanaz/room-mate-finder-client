@@ -6,6 +6,7 @@ import Lottie from 'lottie-react';
 import { Typewriter } from 'react-simple-typewriter';
 import { Fade, Slide, Bounce } from 'react-awesome-reveal';
 import { Tooltip } from 'react-tooltip';
+import { auth } from '../firebase/firebase.config';
 
 // Simple loading animation data
 const loadingAnimation = {
@@ -156,21 +157,34 @@ const RoomDetails = () => {
     fetchRoomData();
   }, [id, user, authLoading, navigate]);
 
-  // Handle like/unlike toggle
+ // Handle like/unlike toggle
   const handleLikeToggle = async () => {
     console.log('Like button clicked');
     if (!user) {
       toast.error('You must be logged in to show interest in rooms');
       return;
     }
+    
     if (likeLoading) return;
 
     try {
       setLikeLoading(true);
-      const token = localStorage.getItem('token');
-      console.log('Token sent:', token);
-      const method = hasLiked ? 'DELETE' : 'POST';
+      let token = localStorage.getItem('token');
+      
+      // Check if token exists, if not try to get a fresh one
+      if (!token && auth.currentUser) {
+        token = await auth.currentUser.getIdToken();
+        localStorage.setItem('token', token);
+      }
+      
+      if (!token) {
+        toast.error('Authentication error. Please login again.');
+        navigate('/login');
+        return;
+      }
 
+      console.log('Making request with token');
+      const method = hasLiked ? 'DELETE' : 'POST';
       const response = await fetch(`http://localhost:3000/rooms/${id}/like`, {
         method,
         headers: {
@@ -178,6 +192,38 @@ const RoomDetails = () => {
           'Content-Type': 'application/json',
         }
       });
+
+      if (response.status === 401) {
+        // Token might be expired, try to refresh
+        if (auth.currentUser) {
+          const newToken = await auth.currentUser.getIdToken(true);
+          localStorage.setItem('token', newToken);
+          
+          // Retry the request with new token
+          const retryResponse = await fetch(`http://localhost:3000/rooms/${id}/like`, {
+            method,
+            headers: {
+              'Authorization': `Bearer ${newToken}`,
+              'Content-Type': 'application/json',
+            }
+          });
+          
+          if (retryResponse.ok) {
+            const result = await retryResponse.json();
+            setLikeCount(result.likeCount);
+            setHasLiked(result.hasLiked);
+            setShowContact(result.hasLiked);
+            toast.success(result.hasLiked
+              ? 'Thank you for showing interest! Contact info revealed.'
+              : 'Interest removed');
+            return;
+          }
+        }
+        
+        toast.error('Authentication expired. Please login again.');
+        navigate('/login');
+        return;
+      }
 
       if (response.ok) {
         const result = await response.json();
