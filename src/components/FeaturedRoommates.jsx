@@ -2,14 +2,27 @@ import React, { useEffect, useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { AuthContext } from '../context/AuthContext';
+import { FaHeart, FaMapMarkerAlt, FaBed, FaMoneyBillWave, FaEye, FaFilter, FaSearch } from 'react-icons/fa';
 
 const FeaturedRoommates = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
+  const [filteredPosts, setFilteredPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('theme') || 'light';
+  });
+
+  // Filter states
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    search: '',
+    location: '',
+    roomType: '',
+    minRent: '',
+    maxRent: '',
+    sortBy: 'newest'
   });
 
   // Listen for theme changes in localStorage
@@ -18,24 +31,23 @@ const FeaturedRoommates = () => {
       const savedTheme = localStorage.getItem('theme') || 'light';
       setTheme(savedTheme);
     };
-
-    // Listen for storage events (when localStorage changes)
-    window.addEventListener('storage', handleThemeChange);
     
-    // Also check periodically in case theme changes within same tab
+    window.addEventListener('storage', handleThemeChange);
     const interval = setInterval(handleThemeChange, 100);
-
+    
     return () => {
       window.removeEventListener('storage', handleThemeChange);
       clearInterval(interval);
     };
   }, []);
 
+  // Fetch posts
   useEffect(() => {
-    fetch('http://localhost:3000/rooms/available?limit=6')
+    fetch('http://localhost:3000/rooms/available?limit=12') // Increased limit for more filtering options
       .then(res => res.json())
       .then(data => {
         setPosts(data);
+        setFilteredPosts(data);
         setLoading(false);
       })
       .catch(err => {
@@ -43,6 +55,96 @@ const FeaturedRoommates = () => {
         setLoading(false);
       });
   }, []);
+
+  // Filter posts based on filter criteria
+  useEffect(() => {
+    let filtered = [...posts];
+
+    // Search filter
+    if (filters.search) {
+      filtered = filtered.filter(post =>
+        post.title.toLowerCase().includes(filters.search.toLowerCase()) ||
+        post.location.toLowerCase().includes(filters.search.toLowerCase()) ||
+        post.description?.toLowerCase().includes(filters.search.toLowerCase())
+      );
+    }
+
+    // Location filter
+    if (filters.location) {
+      filtered = filtered.filter(post =>
+        post.location.toLowerCase().includes(filters.location.toLowerCase())
+      );
+    }
+
+    // Room type filter
+    if (filters.roomType) {
+      filtered = filtered.filter(post =>
+        post.roomType?.toLowerCase() === filters.roomType.toLowerCase()
+      );
+    }
+
+    // Rent range filter
+    if (filters.minRent) {
+      filtered = filtered.filter(post => post.rentAmount >= parseInt(filters.minRent));
+    }
+    if (filters.maxRent) {
+      filtered = filtered.filter(post => post.rentAmount <= parseInt(filters.maxRent));
+    }
+
+    // Sort the filtered results
+    filtered.sort((a, b) => {
+      const getLikeCount = (post) => {
+        if (Array.isArray(post.likes)) return post.likes.length;
+        if (typeof post.likes === 'number') return post.likes;
+        if (post.likeCount) return post.likeCount;
+        return 0;
+      };
+
+      switch (filters.sortBy) {
+        case 'mostLiked':
+          return getLikeCount(b) - getLikeCount(a);
+        case 'leastLiked':
+          return getLikeCount(a) - getLikeCount(b);
+        case 'priceHigh':
+          return b.rentAmount - a.rentAmount;
+        case 'priceLow':
+          return a.rentAmount - b.rentAmount;
+        case 'oldest':
+          return new Date(a.createdAt || a.datePosted || 0) - new Date(b.createdAt || b.datePosted || 0);
+        case 'newest':
+        default:
+          return new Date(b.createdAt || b.datePosted || 0) - new Date(a.createdAt || a.datePosted || 0);
+      }
+    });
+
+    // Limit to 6 for featured display (can be adjusted)
+    setFilteredPosts(filtered.slice(0, 6));
+  }, [filters, posts]);
+
+  // Handle filter changes
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+
+  // Clear all filters
+  const clearFilters = () => {
+    setFilters({
+      search: '',
+      location: '',
+      roomType: '',
+      minRent: '',
+      maxRent: '',
+      sortBy: 'newest'
+    });
+  };
+
+  // Get unique values for filter options
+  const getUniqueValues = (key) => {
+    return [...new Set(posts.map(post => post[key]).filter(Boolean))];
+  };
 
   // Handle See More click with authentication check
   const handleSeeMoreClick = (postId) => {
@@ -94,7 +196,7 @@ const FeaturedRoommates = () => {
   }
 
   return (
-    <div className={`p-10  transition-colors duration-200 ${
+    <div className={`p-10 transition-colors duration-200 ${
       theme === 'dark' ? 'bg-gray-900' : 'bg-white'
     }`}>
       <Toaster 
@@ -117,11 +219,157 @@ const FeaturedRoommates = () => {
         <p className={`transition-colors duration-200 ${
           theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
         }`}>
-          Discover the latest available roommate opportunities
+          Discover the latest available roommate opportunities • {filteredPosts.length} results
         </p>
       </div>
 
-      {posts.length === 0 ? (
+      {/* Filter Section */}
+      <div className={`rounded-xl p-6 mb-8 shadow-sm max-w-7xl mx-auto ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
+          <h3 className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            Filter & Search
+          </h3>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+          >
+            <FaFilter className="mr-2" />
+            {showFilters ? 'Hide Filters' : 'Show Filters'}
+          </button>
+        </div>
+
+        {/* Search Bar - Always Visible */}
+        <div className="relative mb-4">
+          <FaSearch className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`} />
+          <input
+            type="text"
+            placeholder="Search posts..."
+            value={filters.search}
+            onChange={(e) => handleFilterChange('search', e.target.value)}
+            className={`w-full pl-10 pr-4 py-3 rounded-lg border transition-colors ${theme === 'dark'
+                ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500'
+                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500'
+              } focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
+          />
+        </div>
+
+        {/* Advanced Filters */}
+        {showFilters && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+              {/* Sort By */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Sort By
+                </label>
+                <select
+                  value={filters.sortBy}
+                  onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+                  className={`w-full px-3 py-2 rounded-lg border transition-colors ${theme === 'dark'
+                      ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500'
+                      : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
+                    } focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                  <option value="mostLiked">Most Liked</option>
+                  <option value="leastLiked">Least Liked</option>
+                  <option value="priceLow">Price: Low to High</option>
+                  <option value="priceHigh">Price: High to Low</option>
+                </select>
+              </div>
+
+              {/* Location Filter */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Location
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter location"
+                  value={filters.location}
+                  onChange={(e) => handleFilterChange('location', e.target.value)}
+                  className={`w-full px-3 py-2 rounded-lg border transition-colors ${theme === 'dark'
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500'
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500'
+                    } focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
+                />
+              </div>
+
+              {/* Room Type Filter */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Room Type
+                </label>
+                <select
+                  value={filters.roomType}
+                  onChange={(e) => handleFilterChange('roomType', e.target.value)}
+                  className={`w-full px-3 py-2 rounded-lg border transition-colors ${theme === 'dark'
+                      ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500'
+                      : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
+                    } focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
+                >
+                  <option value="">All Types</option>
+                  {getUniqueValues('roomType').map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Min Rent */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Min Rent
+                </label>
+                <input
+                  type="number"
+                  placeholder="Min rent"
+                  value={filters.minRent}
+                  onChange={(e) => handleFilterChange('minRent', e.target.value)}
+                  className={`w-full px-3 py-2 rounded-lg border transition-colors ${theme === 'dark'
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500'
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500'
+                    } focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
+                />
+              </div>
+
+              {/* Max Rent */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Max Rent
+                </label>
+                <input
+                  type="number"
+                  placeholder="Max rent"
+                  value={filters.maxRent}
+                  onChange={(e) => handleFilterChange('maxRent', e.target.value)}
+                  className={`w-full px-3 py-2 rounded-lg border transition-colors ${theme === 'dark'
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500'
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500'
+                    } focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
+                />
+              </div>
+
+              {/* Clear Filters Button */}
+              <div className="flex items-end">
+                <button
+                  onClick={clearFilters}
+                  className={`w-full px-4 py-2 rounded-lg border transition-colors
+                    ${theme === 'dark'
+                      ? 'bg-gray-700 border-gray-600 text-white hover:bg-gray-600'
+                      : 'bg-white border-gray-300 text-gray-900 hover:bg-gray-50'}
+                    focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
+                >
+                  Clear All
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Posts Grid */}
+      {filteredPosts.length === 0 ? (
         <div className="text-center py-12">
           <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${
             theme === 'dark' ? 'bg-gray-700' : 'bg-gray-100'
@@ -143,17 +391,28 @@ const FeaturedRoommates = () => {
           <h3 className={`text-xl font-medium mb-2 ${
             theme === 'dark' ? 'text-white' : 'text-gray-900'
           }`}>
-            No Featured Posts Available
+            {posts.length === 0 ? 'No Featured Posts Available' : 'No Results Found'}
           </h3>
-          <p className={`${
+          <p className={`mb-4 ${
             theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
           }`}>
-            Check back later for new roommate listings
+            {posts.length === 0 
+              ? 'Check back later for new roommate listings' 
+              : 'Try adjusting your filters to find more posts.'
+            }
           </p>
+          {posts.length > 0 && (
+            <button
+              onClick={clearFilters}
+              className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200 shadow-lg"
+            >
+              Clear Filters
+            </button>
+          )}
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {posts.map(post => (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+          {filteredPosts.map(post => (
             <div 
               key={post._id} 
               className={`group shadow-lg hover:shadow-xl transition-all duration-300 rounded-lg overflow-hidden border ${
@@ -170,38 +429,35 @@ const FeaturedRoommates = () => {
                   }`}>
                     {post.title}
                   </h3>
-                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-2 flex-shrink-0 ${
-                    theme === 'dark' 
-                      ? 'bg-green-900 text-green-200' 
-                      : 'bg-green-100 text-green-800'
-                  }`}>
-                    Available
-                  </span>
+                  <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                    {/* Like Count */}
+                    <span className="flex items-center text-sm font-medium text-pink-500">
+                      <FaHeart className="mr-1" />
+                      {(() => {
+                        // Handle different like count formats from backend
+                        if (Array.isArray(post.likes)) return post.likes.length;
+                        if (typeof post.likes === 'number') return post.likes;
+                        if (post.likeCount) return post.likeCount;
+                        if (post.likesCount) return post.likesCount;
+                        return 0;
+                      })()}
+                    </span>
+                    {/* Available Badge */}
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                      theme === 'dark' 
+                        ? 'bg-green-900 text-green-200' 
+                        : 'bg-green-100 text-green-800'
+                    }`}>
+                      Available
+                    </span>
+                  </div>
                 </div>
 
                 {/* Location */}
                 <div className="flex items-center mb-3">
-                  <svg 
-                    className={`w-4 h-4 mr-2 flex-shrink-0 ${
-                      theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
-                    }`} 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth="2" 
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth="2" 
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
+                  <FaMapMarkerAlt className={`mr-2 flex-shrink-0 ${
+                    theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                  }`} />
                   <span className={`text-sm ${
                     theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
                   }`}>
@@ -209,62 +465,23 @@ const FeaturedRoommates = () => {
                   </span>
                 </div>
 
-                {/* Rent */}
-                <div className="flex items-center mb-4">
-                  <svg 
-                    className={`w-4 h-4 mr-2 flex-shrink-0 ${
-                      theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
-                    }`} 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth="2" 
-                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
-                    />
-                  </svg>
-                  <span className={`font-semibold text-lg ${
-                    theme === 'dark' ? 'text-green-400' : 'text-green-600'
-                  }`}>
-                    ${post.rentAmount}
-                    <span className={`text-sm font-normal ${
-                      theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-                    }`}>
-                      /month
-                    </span>
-                  </span>
-                </div>
-
-                {/* Room Type */}
-                {post.roomType && (
-                  <div className="flex items-center mb-4">
-                    <svg 
-                      className={`w-4 h-4 mr-2 flex-shrink-0 ${
-                        theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
-                      }`} 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth="2" 
-                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                      />
-                    </svg>
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      theme === 'dark' 
-                        ? 'bg-blue-900 text-blue-200' 
-                        : 'bg-blue-100 text-blue-800'
-                    }`}>
-                      {post.roomType}
+                {/* Rent and Room Type */}
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="flex items-center">
+                    <FaMoneyBillWave className="mr-2 text-green-500" />
+                    <span className="font-semibold text-green-600">
+                      ${post.rentAmount}/mo
                     </span>
                   </div>
-                )}
+                  {post.roomType && (
+                    <div className="flex items-center">
+                      <FaBed className="mr-2 text-blue-500" />
+                      <span className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}>
+                        {post.roomType}
+                      </span>
+                    </div>
+                  )}
+                </div>
 
                 {/* Description */}
                 <p className={`text-sm line-clamp-3 mb-4 ${
@@ -313,20 +530,8 @@ const FeaturedRoommates = () => {
                   onClick={() => handleSeeMoreClick(post._id)}
                   className="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200 group-hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
+                  <FaEye className="mr-2" />
                   <span>See Details</span>
-                  <svg 
-                    className="w-4 h-4 ml-2 transition-transform duration-200 group-hover:translate-x-1" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth="2" 
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
                 </button>
                 {!user && (
                   <p className={`text-xs text-center mt-2 ${
@@ -342,15 +547,11 @@ const FeaturedRoommates = () => {
       )}
 
       {/* View All Button */}
-      {posts.length > 0 && (
+      {filteredPosts.length > 0 && (
         <div className="text-center mt-8">
           <button
             onClick={() => {
-              if (!user) {
-                toast.error("Please log in to browse all listings");
-                navigate('/login');
-                return;
-              }
+             
               navigate('/browse');
             }}
             className={`inline-flex items-center px-6 py-3 font-medium rounded-lg transition-colors duration-200 ${
