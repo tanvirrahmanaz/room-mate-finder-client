@@ -156,94 +156,119 @@ const RoomDetails = () => {
 
     fetchRoomData();
   }, [id, user, authLoading, navigate]);
-
- // Handle like/unlike toggle
-  const handleLikeToggle = async () => {
-    console.log('Like button clicked');
-    if (!user) {
-      toast.error('You must be logged in to show interest in rooms');
+// Handle like/unlike toggle - Modified for multiple likes
+const handleLikeToggle = async () => {
+  
+  
+  // Check if user is logged in
+  if (!user) {
+    toast.error('You must be logged in to show interest in rooms');
+    return;
+  }
+  
+  // Prevent users from liking their own posts
+  const isOwner = room && (
+    user.uid === room.ownerId || 
+    user.uid === room.userId || 
+    user.uid === room.userUid || 
+    user.uid === room.createdBy ||
+    user.uid === room.owner?.uid ||
+    user.uid === room.owner?.id ||
+    user.email === room.userEmail ||
+    user.email === room.ownerId ||
+    user.email === room.userId ||
+    user.email === room.createdBy
+  );
+  
+  if (isOwner) {
+    toast.error('You cannot like your own room posting');
+    return;
+  }
+  
+  // Prevent multiple rapid clicks
+  if (likeLoading) return;
+  
+  try {
+    setLikeLoading(true);
+    let token = localStorage.getItem('token');
+    
+    // Check if token exists, if not try to get a fresh one
+    if (!token && auth.currentUser) {
+      token = await auth.currentUser.getIdToken();
+      localStorage.setItem('token', token);
+    }
+    
+    if (!token) {
+      toast.error('Authentication error. Please login again.');
+      navigate('/login');
       return;
     }
     
-    if (likeLoading) return;
-
-    try {
-      setLikeLoading(true);
-      let token = localStorage.getItem('token');
-      
-      // Check if token exists, if not try to get a fresh one
-      if (!token && auth.currentUser) {
-        token = await auth.currentUser.getIdToken();
-        localStorage.setItem('token', token);
+    
+    
+    // Always use POST method with force=true for multiple likes
+    const response = await fetch(`http://localhost:3000/rooms/${id}/like?force=true`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
       }
-      
-      if (!token) {
-        toast.error('Authentication error. Please login again.');
-        navigate('/login');
-        return;
-      }
-
-      console.log('Making request with token');
-      const method = hasLiked ? 'DELETE' : 'POST';
-      const response = await fetch(`http://localhost:3000/rooms/${id}/like`, {
-        method,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        }
-      });
-
-      if (response.status === 401) {
-        // Token might be expired, try to refresh
-        if (auth.currentUser) {
-          const newToken = await auth.currentUser.getIdToken(true);
-          localStorage.setItem('token', newToken);
-          
-          // Retry the request with new token
-          const retryResponse = await fetch(`http://localhost:3000/rooms/${id}/like`, {
-            method,
-            headers: {
-              'Authorization': `Bearer ${newToken}`,
-              'Content-Type': 'application/json',
-            }
-          });
-          
-          if (retryResponse.ok) {
-            const result = await retryResponse.json();
-            setLikeCount(result.likeCount);
-            setHasLiked(result.hasLiked);
-            setShowContact(result.hasLiked);
-            toast.success(result.hasLiked
-              ? 'Thank you for showing interest! Contact info revealed.'
-              : 'Interest removed');
-            return;
-          }
-        }
+    });
+    
+    if (response.status === 401) {
+      // Token might be expired, try to refresh
+      if (auth.currentUser) {
+        const newToken = await auth.currentUser.getIdToken(true);
+        localStorage.setItem('token', newToken);
         
-        toast.error('Authentication expired. Please login again.');
-        navigate('/login');
-        return;
+        // Retry the request with new token and force parameter
+        const retryResponse = await fetch(`http://localhost:3000/rooms/${id}/like?force=true`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${newToken}`,
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (retryResponse.ok) {
+          const result = await retryResponse.json();
+         
+          setLikeCount(result.likeCount);
+          setShowContact(true);
+          toast.success('Thank you for showing interest! Contact info revealed.');
+          return;
+        }
       }
-
-      if (response.ok) {
-        const result = await response.json();
-        setLikeCount(result.likeCount);
-        setHasLiked(result.hasLiked);
-        setShowContact(result.hasLiked);
-        toast.success(result.hasLiked
-          ? 'Thank you for showing interest! Contact info revealed.'
-          : 'Interest removed');
+      
+      toast.error('Authentication expired. Please login again.');
+      navigate('/login');
+      return;
+    }
+    
+    if (response.ok) {
+      const result = await response.json();
+      
+      setLikeCount(result.likeCount);
+      setShowContact(true);
+      toast.success('Thank you for showing interest! Contact info revealed.');
+    } else {
+      const error = await response.json();
+      console.error('Error response:', error);
+      
+      // Handle the specific case where user tries to like their own post
+      if (error.message === 'You cannot like your own room posting') {
+        toast.error('You cannot like your own room posting');
       } else {
-        const error = await response.json();
         toast.error(error.message || 'Failed to update interest status');
       }
-    } catch (err) {
-      console.error('Failed to toggle like:', err);
-      toast.error('Failed to update interest status. Please try again.');
-    } finally {
-      setLikeLoading(false);
     }
-  };
+  } catch (err) {
+    console.error('Failed to toggle like:', err);
+    toast.error('Failed to update interest status. Please try again.');
+  } finally {
+    setLikeLoading(false);
+  }
+};
   // Show loading screen while auth is loading
   if (authLoading) {
     return (
