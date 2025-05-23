@@ -5,7 +5,7 @@ import WhyChooseUs from '../components/WhyChooseUs';
 import TestimonialSection from '../components/TestimonialSection';
 const Home = () => {
   return (
-    <div>
+    <div className='pt-16'>
       <SliderBanner />
       <FeaturedRoommates />
       <WhyChooseUs />

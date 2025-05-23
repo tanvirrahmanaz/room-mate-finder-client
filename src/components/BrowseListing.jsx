@@ -188,7 +188,7 @@ const BrowseListings = () => {
   };
 
   return (
-    <div className={`min-h-screen transition-all duration-200 ease-in-out ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} py-8`}>
+    <div className={`min-h-screen transition-all duration-200 ease-in-out ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} py-18`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Toaster position="top-right" />
         

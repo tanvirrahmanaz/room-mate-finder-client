@@ -244,7 +244,7 @@ const AddListing = () => {
   }
 
   return (
-    <div className={`py-10 transition-colors duration-200 ${
+    <div className={`py-16 transition-colors duration-200 ${
       theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'
     }`}>
       <div className={`max-w-3xl mx-auto p-6 rounded-lg shadow-lg mt-6 transition-colors duration-200 ${
