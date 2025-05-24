@@ -3,7 +3,7 @@
 A modern web application for finding and connecting with potential roommates. Built with React, Vite, and Tailwind CSS.
 
 ## Live Demo
-[Room Mate Finder](https://room-mate-finder-client.vercel.app/)
+[Room Mate Finder](https://room-mate-finderbd.web.app/)
 
 ## Features
 
