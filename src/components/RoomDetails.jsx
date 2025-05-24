@@ -419,7 +419,7 @@ const handleLikeToggle = async () => {
 
   return (
     <div className={`transition-colors duration-300 ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      <div className=" px-4 md:px-20">
+      <div className=" px-4 mt-10 md:px-20">
         <Toaster position="top-right" />
 
         {/* Breadcrumb */}

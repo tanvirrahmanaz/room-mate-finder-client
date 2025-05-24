@@ -21,6 +21,8 @@ import NotFound from './pages/NotFound';
 import UpdateListing from './components/UpdateListing';
 import RoomDetails from './components/RoomDetails';
 import { ThemeProvider } from './context/ThemeContext'; // ✅ Now default export works
+import { Edit } from 'lucide-react';
+import EditListing from './components/EditListing';
 
 const router = createBrowserRouter([
   {
@@ -57,6 +59,10 @@ const router = createBrowserRouter([
       },
       { path: '/details/:id', 
         element: <RoomDetails></RoomDetails>
+      },
+      {
+        path: '/edit-listing/:id',
+        element: <EditListing></EditListing>
       },
       {
         path: '/update/:id',
