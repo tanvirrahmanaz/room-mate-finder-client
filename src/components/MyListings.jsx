@@ -57,7 +57,7 @@ const MyListings = () => {
       // Fetch user's listings if authenticated
       setLoading(true);
       try {
-        const response = await fetch(`http://localhost:3000/rooms?email=${user.email}`);
+        const response = await fetch(`https://room-mate-finder-server-zeta.vercel.app/rooms?email=${user.email}`);
         if (!response.ok) {
           throw new Error('Failed to fetch listings');
         }
@@ -97,7 +97,7 @@ const MyListings = () => {
     if (result.isConfirmed) {
       setDeleteLoading(id);
       try {
-        const res = await fetch(`http://localhost:3000/rooms/${id}`, {
+        const res = await fetch(`https://room-mate-finder-server-zeta.vercel.app/rooms/${id}`, {
           method: 'DELETE',
         });
 

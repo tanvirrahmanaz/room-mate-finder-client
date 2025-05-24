@@ -12,7 +12,7 @@ const UpdateListing = () => {
 
   // Fetch existing post data
   useEffect(() => {
-    fetch(`http://localhost:3000/rooms/${id}`)
+    fetch(`https://room-mate-finder-server-zeta.vercel.app/rooms/${id}`)
       .then(res => res.json())
       .then(data => setFormData(data))
       .catch(err => {
@@ -57,7 +57,7 @@ const UpdateListing = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`http://localhost:3000/rooms/${id}`, {
+      const response = await fetch(`https://room-mate-finder-server-zeta.vercel.app/rooms/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

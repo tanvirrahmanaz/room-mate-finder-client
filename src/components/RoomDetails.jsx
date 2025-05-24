@@ -112,7 +112,7 @@ const RoomDetails = () => {
 
 
         // Fetch room details
-        const roomResponse = await fetch(`http://localhost:3000/rooms/${id}`, {
+        const roomResponse = await fetch(`https://room-mate-finder-server-zeta.vercel.app/rooms/${id}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -131,7 +131,7 @@ const RoomDetails = () => {
         setLikeCount(roomData.likeCount || 0);
 
         // Fetch like status for current users
-        const likeStatusResponse = await fetch(`http://localhost:3000/rooms/${id}/like-status`, {
+        const likeStatusResponse = await fetch(`https://room-mate-finder-server-zeta.vercel.app/rooms/${id}/like-status`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -207,7 +207,7 @@ const handleLikeToggle = async () => {
     
     
     // Always use POST method with force=true for multiple likes
-    const response = await fetch(`http://localhost:3000/rooms/${id}/like?force=true`, {
+    const response = await fetch(`https://room-mate-finder-server-zeta.vercel.app/rooms/${id}/like?force=true`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -222,7 +222,7 @@ const handleLikeToggle = async () => {
         localStorage.setItem('token', newToken);
         
         // Retry the request with new token and force parameter
-        const retryResponse = await fetch(`http://localhost:3000/rooms/${id}/like?force=true`, {
+        const retryResponse = await fetch(`https://room-mate-finder-server-zeta.vercel.app/rooms/${id}/like?force=true`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${newToken}`,

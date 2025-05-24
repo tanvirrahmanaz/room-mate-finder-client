@@ -74,7 +74,7 @@ const BrowseListings = () => {
     const fetchListings = async () => {
       setLoading(true);
       try {
-        const response = await fetch('http://localhost:3000/rooms');
+        const response = await fetch('https://room-mate-finder-server-zeta.vercel.app/rooms');
         if (!response.ok) throw new Error('Failed to fetch listings');
         const data = await response.json();
         setListings(data);

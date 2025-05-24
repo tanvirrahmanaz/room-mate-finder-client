@@ -101,7 +101,7 @@ const AddListing = () => {
     };
 
     try {
-      const response = await fetch('http://localhost:3000/rooms', {
+      const response = await fetch('https://room-mate-finder-server-zeta.vercel.app/rooms', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
