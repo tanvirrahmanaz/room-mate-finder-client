@@ -1,3 +1,51 @@
+/* src/index.css */
+
 @import "tailwindcss";
 @plugin "daisyui";
 
+@layer base {
+  body {
+    /*
+      এখানে আমরা @apply bg-base-100 ব্যবহার না করে, সরাসরি DaisyUI এর
+      CSS ভ্যারিয়েবল ব্যবহার করছি। '--b1' হলো 'base-100' এর ভ্যারিয়েবল
+      এবং '--n' হলো 'neutral' এর ভ্যারিয়েবল। এটি বেশি নির্ভরযোগ্য।
+    */
+    background-color: hsl(var(--b1));
+    color: hsl(var(--n));
+    @apply transition-colors duration-300; /* ট্রানজিশন ঠিকই কাজ করবে */
+  }
+
+  /* Optional: লিঙ্কগুলোর জন্যও একই পদ্ধতি ব্যবহার করা ভালো */
+  a {
+    /* '--p' হলো 'primary' রঙের ভ্যারিয়েবল */
+    color: hsl(var(--p));
+    @apply hover:underline;
+  }
+}
+
+@layer components {
+  /* আপনার বাকি কাস্টম কম্পোনেন্ট ক্লাসগুলো এখানে থাকবে */
+  .section-title {
+    @apply text-3xl font-extrabold text-center mb-4 md:text-4xl;
+  }
+
+  .section-subtitle {
+    @apply text-lg text-center text-neutral/70 mb-8 md:mb-12 max-w-2xl mx-auto;
+  }
+}
+
+
+@keyframes keyframes-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: keyframes-fade-in-up 0.8s ease-out forwards;
+}
