@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
+import Swal from 'sweetalert2';
 import { AuthContext } from '../context/AuthContext';
 
 const AddListing = () => {
@@ -22,10 +23,8 @@ const AddListing = () => {
       const savedTheme = localStorage.getItem('theme') || 'light';
       setTheme(savedTheme);
     };
-
     window.addEventListener('storage', handleThemeChange);
     const interval = setInterval(handleThemeChange, 100);
-
     return () => {
       window.removeEventListener('storage', handleThemeChange);
       clearInterval(interval);
@@ -111,7 +110,21 @@ const AddListing = () => {
       });
 
       if (response.ok) {
-        toast.success('Listing added successfully!');
+        // Show Sweet Alert for success
+        await Swal.fire({
+          title: 'Success!',
+          text: 'Your listing has been added successfully!',
+          icon: 'success',
+          confirmButtonText: 'View My Listings',
+          confirmButtonColor: '#3B82F6',
+          background: theme === 'dark' ? '#1F2937' : '#FFFFFF',
+          color: theme === 'dark' ? '#FFFFFF' : '#000000',
+          customClass: {
+            popup: theme === 'dark' ? 'dark-popup' : '',
+          }
+        });
+
+        // Reset form
         setFormData({
           title: '',
           location: '',
@@ -127,12 +140,41 @@ const AddListing = () => {
           contactNumber: '',
           availability: true,
         });
+
+        // Navigate to my-listings page
+        navigate('/my-listings');
+        
       } else {
         const errorData = await response.json();
-        toast.error(errorData.message || 'Failed to add listing');
+        
+        // Show Sweet Alert for error
+        await Swal.fire({
+          title: 'Error!',
+          text: errorData.message || 'Failed to add listing. Please try again.',
+          icon: 'error',
+          confirmButtonText: 'Try Again',
+          confirmButtonColor: '#EF4444',
+          background: theme === 'dark' ? '#1F2937' : '#FFFFFF',
+          color: theme === 'dark' ? '#FFFFFF' : '#000000',
+          customClass: {
+            popup: theme === 'dark' ? 'dark-popup' : '',
+          }
+        });
       }
     } catch (error) {
-      toast.error('Error connecting to server');
+      // Show Sweet Alert for network error
+      await Swal.fire({
+        title: 'Connection Error!',
+        text: 'Unable to connect to server. Please check your internet connection and try again.',
+        icon: 'error',
+        confirmButtonText: 'Try Again',
+        confirmButtonColor: '#EF4444',
+        background: theme === 'dark' ? '#1F2937' : '#FFFFFF',
+        color: theme === 'dark' ? '#FFFFFF' : '#000000',
+        customClass: {
+          popup: theme === 'dark' ? 'dark-popup' : '',
+        }
+      });
       console.error(error);
     } finally {
       setFormLoading(false);
