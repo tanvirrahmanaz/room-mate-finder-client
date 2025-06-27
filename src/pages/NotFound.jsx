@@ -1,21 +1,33 @@
+// src/pages/NotFound.jsx
+
 import React from 'react';
-import { Link } from 'react-router-dom';
-import errorImage from '../assets/error.jpg';
+import { Link, useRouteError } from 'react-router-dom';
+import { Home, AlertTriangle } from 'lucide-react';
 
 const NotFound = () => {
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 text-center px-4">
-      <img src={errorImage} alt="404 Not Found" className="max-w-md mb-6" />
-      <h1 className="text-4xl font-bold text-gray-700 dark:text-white mb-4">Oops! Page Not Found</h1>
-      <p className="text-gray-500 dark:text-gray-300 mb-6">Sorry, the page you're looking for doesn't exist.</p>
-      <Link
-        to="/"
-        className="btn btn-primary px-6 py-2 rounded-md text-white hover:bg-indigo-700 transition-colors"
-      >
-        Back to Home
-      </Link>
-    </div>
-  );
+    const error = useRouteError();
+    console.error(error);
+
+    return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-base-200 text-center px-4">
+            <div className="max-w-md">
+                <AlertTriangle className="w-24 h-24 text-error mx-auto mb-6" />
+                <h1 className="text-6xl font-extrabold text-error">
+                    {error.status || '404'}
+                </h1>
+                <h2 className="text-3xl font-bold text-base-content mt-4">
+                    {error.statusText || 'Page Not Found'}
+                </h2>
+                <p className="text-base-content/70 mt-4 mb-8">
+                    Oops! The page you are looking for does not exist. It might have been moved or deleted.
+                </p>
+                <Link to="/" className="btn btn-primary">
+                    <Home size={18} className="mr-2" />
+                    Go Back to Homepage
+                </Link>
+            </div>
+        </div>
+    );
 };
 
 export default NotFound;

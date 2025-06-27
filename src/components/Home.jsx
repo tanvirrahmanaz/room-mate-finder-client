@@ -11,7 +11,6 @@ const Home = () => {
       <SliderBanner />
       <FeaturedRoommates />
       <WhyChooseUs />
-      <HowItWorks></HowItWorks>
       <TestimonialSection />
       <Newsletter></Newsletter>
     </div>

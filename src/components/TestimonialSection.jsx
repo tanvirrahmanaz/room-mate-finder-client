@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Quote, Star, MessageCircle, User } from 'lucide-react';
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const TestimonialSection = () => {
     const [isDark, setIsDark] = useState(false);
@@ -27,6 +30,20 @@ const TestimonialSection = () => {
             clearInterval(interval);
         };
     }, []);
+
+    // Step 1: Import necessary hooks
+    const { user } = useContext(AuthContext);
+    const navigate = useNavigate();
+    // Step 2: Create a handler function for the button click
+    const handleGetStartedClick = () => {
+        if (user) {
+            // If user is logged in, navigate to add listing page
+            navigate('/add-listing');
+        } else {
+            // If not logged in, navigate to browse page
+            navigate('/browse');
+        }
+    };
 
     const testimonials = [
         {
@@ -171,18 +188,15 @@ const TestimonialSection = () => {
                     </div>
                 </div>
 
-                {/* CTA Section */}
-                <div className="text-center mt-12">
-                    <p className={`text-lg mb-6 ${
-                        isDark ? 'text-gray-300' : 'text-gray-700'
-                    }`}>
+               <div className="text-center mt-16">
+                    <p className="text-lg mb-6 text-base-content/80">
                         Join thousands of satisfied users today!
                     </p>
-                    <button className={`text-white font-bold py-4 px-8 rounded-full transition-all duration-300 hover:shadow-lg hover:scale-105 transform ${
-                        isDark 
-                            ? 'bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700' 
-                            : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700'
-                    }`}>
+                    {/* Step 3: Attach the handler and use DaisyUI classes for styling */}
+                    <button 
+                        onClick={handleGetStartedClick}
+                        className="btn btn-primary btn-lg rounded-full shadow-lg transform hover:scale-105"
+                    >
                         Get Started Now
                     </button>
                 </div>

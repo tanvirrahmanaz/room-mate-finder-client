@@ -23,11 +23,15 @@ import RoomDetails from './components/RoomDetails';
 import { ThemeProvider } from './context/ThemeContext'; // ✅ Now default export works
 import { Edit } from 'lucide-react';
 import EditListing from './components/EditListing';
+import AboutUs from './components/AboutUs';
+import ContactUs from './pages/ContactUs';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <MainLayout />, // must include <Outlet />
+    errorElement: <NotFound></NotFound>, // ✅ This will show if no route matches
     children: [
       {
         path: '/',
@@ -67,6 +71,18 @@ const router = createBrowserRouter([
       {
         path: '/update/:id',
         element: <UpdateListing></UpdateListing>
+      },
+      {
+        path: 'about',
+        element: <AboutUs></AboutUs>
+      },
+      {
+        path: "/contact",
+        element: <ContactUs />,
+      },
+      {
+        path: "/privacy",
+        element: <PrivacyPolicy />,
       },
 
     ],

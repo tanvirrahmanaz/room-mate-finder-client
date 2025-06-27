@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, Search, Users, CheckCircle, Clock, Heart, Star, MessageCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const WhyChooseUs = () => {
     const [isDark, setIsDark] = useState(false);
+    const navigate = useNavigate();
 
     // Listen for theme changes
     useEffect(() => {
@@ -185,25 +187,29 @@ const WhyChooseUs = () => {
                     </div>
                 </div>
 
-                {/* CTA Section */}
-                <div className="text-center mt-16">
-                    <div className="inline-flex items-center justify-center space-x-4">
-                        <button className={`text-white font-bold py-4 px-8 rounded-full transition-all duration-300 hover:shadow-lg hover:scale-105 transform ${
-                            isDark 
-                                ? 'bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700' 
-                                : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700'
-                        }`}>
-                            Start Your Search Today
-                        </button>
-                        <button className={`font-bold py-4 px-8 rounded-full transition-all duration-300 border-2 ${
-                            isDark 
-                                ? 'border-purple-400 text-purple-400 hover:bg-purple-500 hover:text-white' 
-                                : 'border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white'
-                        }`}>
-                            Learn More
-                        </button>
-                    </div>
-                </div>
+                 {/* Updated CTA Section */}
+        <div className="text-center mt-16">
+            <p className="text-lg mb-6 text-base-content/80">
+                Ready to find your new home?
+            </p>
+            <div className="inline-flex items-center justify-center space-x-4">
+                {/* Button 1: Start Search */}
+                <button 
+                    onClick={() => navigate('/browse')}
+                    className="btn btn-primary btn-lg rounded-full shadow-lg transform hover:scale-105"
+                >
+                    Start Your Search Today
+                </button>
+                
+                {/* Button 2: Learn More */}
+                <button
+                    onClick={() => navigate('/about')} 
+                    className="btn btn-secondary btn-outline btn-lg rounded-full"
+                >
+                    Learn More
+                </button>
+            </div>
+        </div>
             </div>
         </div>
     );

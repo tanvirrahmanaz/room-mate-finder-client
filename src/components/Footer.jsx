@@ -1,242 +1,105 @@
-import React, { useState, useEffect } from 'react';
-import { Phone, Mail, MapPin, Facebook, Twitter, Instagram, Heart } from 'lucide-react';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Facebook, Twitter, Linkedin, Phone, Mail, MapPin, Clock } from 'lucide-react'; // Clock icon added
+import logo from '../assets/room-mate-logo.png'; // আপনার লোগো ফাইলের সঠিক পাথ দিন
 
 const Footer = () => {
-  const [theme, setTheme] = useState('light');
+    const servicesLinks = [
+        { name: 'Find Roommates', path: '/browse' },
+        { name: 'Add a Listing', path: '/add-listing' },
+        { name: 'My Dashboard', path: '/my-listings' },
+    ];
 
-  // LocalStorage থেকে theme load করা
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
-      setTheme(savedTheme);
-    }
-  }, []);
+    const companyLinks = [
+        { name: 'About Us', path: '/about' },
+        { name: 'Contact', path: '/contact' },
+        { name: 'Privacy Policy', path: '/privacy' },
+    ];
 
-  // Theme change detect করা
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const currentTheme = localStorage.getItem('theme');
-      if (currentTheme && (currentTheme === 'light' || currentTheme === 'dark')) {
-        setTheme(currentTheme);
-      }
-    };
+    const socialLinks = [
+        { Icon: Facebook, href: 'https://facebook.com/your-page-url', name: 'Facebook' },
+        { Icon: Twitter, href: 'https://twitter.com/your-profile', name: 'Twitter' },
+        { Icon: Linkedin, href: 'https://linkedin.com/your-profile', name: 'LinkedIn' },
+    ];
 
-    // Storage event listener add করা
-    window.addEventListener('storage', handleStorageChange);
-    
-    // Manual check করা (same tab এর জন্য)
-    const interval = setInterval(() => {
-      const currentTheme = localStorage.getItem('theme');
-      if (currentTheme !== theme) {
-        setTheme(currentTheme || 'light');
-      }
-    }, 100);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      clearInterval(interval);
-    };
-  }, [theme]);
-
-  const isDark = theme === 'dark';
-
-  return (
-    <div className={isDark ? 'dark' : ''}>
-      <footer className={`relative overflow-hidden transition-all duration-500 ${
-        isDark
-          ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-300'
-          : 'bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 text-gray-700'
-        } py-16 px-6`}>
-        
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className={`absolute top-0 left-0 w-40 h-40 rounded-full -translate-x-20 -translate-y-20 ${
-            isDark ? 'bg-blue-500' : 'bg-blue-600'
-          }`}></div>
-          <div className={`absolute bottom-0 right-0 w-60 h-60 rounded-full translate-x-20 translate-y-20 ${
-            isDark ? 'bg-blue-500' : 'bg-blue-600'
-          }`}></div>
-          <div className={`absolute top-1/2 left-1/3 w-20 h-20 rounded-full ${
-            isDark ? 'bg-blue-500' : 'bg-blue-600'
-          }`}></div>
-        </div>
-
-        <div className="relative max-w-7xl mx-auto">
-          {/* Main Footer Content */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+    return (
+        <footer className="relative bg-base-200 text-base-content overflow-hidden py-16 px-4 sm:px-6 lg:px-8">
             
-            {/* Brand Section */}
-            <div className="lg:col-span-1">
-              <div className="flex items-center mb-4">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-3 ${
-                  isDark ? 'bg-blue-600' : 'bg-blue-500'
-                }`}>
-                  <Heart className="text-white" size={20} />
-                </div>
-                <h3 className="text-2xl font-bold">RoomMate Finder</h3>
-              </div>
-              <p className={`text-sm leading-relaxed ${
-                isDark ? 'text-gray-400' : 'text-gray-600'
-              }`}>
-                Find your perfect roommate. Safe, easy and trusted platform for everyone.
-              </p>
-              <div className="flex space-x-3 mt-4">
-                <a href="https://facebook.com" target="_blank" rel="noreferrer"
-                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
-                    isDark
-                      ? 'bg-gray-800 hover:bg-blue-600 text-gray-400 hover:text-white'
-                      : 'bg-blue-500 hover:bg-blue-600 text-white'
-                  }`}>
-                  <Facebook size={18} />
-                </a>
-                <a href="https://twitter.com" target="_blank" rel="noreferrer"
-                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
-                    isDark
-                      ? 'bg-gray-800 hover:bg-blue-400 text-gray-400 hover:text-white'
-                      : 'bg-blue-500 hover:bg-blue-600 text-white'
-                  }`}>
-                  <Twitter size={18} />
-                </a>
-                <a href="https://instagram.com" target="_blank" rel="noreferrer"
-                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
-                    isDark
-                      ? 'bg-gray-800 hover:bg-pink-600 text-gray-400 hover:text-white'
-                      : 'bg-blue-500 hover:bg-blue-600 text-white'
-                  }`}>
-                  <Instagram size={18} />
-                </a>
-              </div>
+            {/* Decorative Background Blobs */}
+            <div className="absolute inset-0 opacity-[.03] pointer-events-none">
+                <div className="absolute top-0 left-0 w-48 h-48 bg-primary rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+                <div className="absolute bottom-0 right-0 w-64 h-64 bg-secondary rounded-full translate-x-1/2 translate-y-1/2"></div>
             </div>
 
-            {/* Services */}
-            <div>
-              <h4 className="text-lg font-semibold mb-4 flex items-center">
-                <div className={`w-2 h-6 rounded-full mr-3 ${
-                  isDark ? 'bg-blue-500' : 'bg-blue-600'
-                }`}></div>
-                Services
-              </h4>
-              <ul className="space-y-3">
-                {[
-                  'Find Roommates',
-                  'User Dashboard',
-                  'Safe Messaging',
-                  'Verified Profiles',
-                  'Advanced Search'
-                ].map((service, index) => (
-                  <li key={index} className={`text-sm hover:translate-x-1 transition-transform duration-200 cursor-pointer ${
-                    isDark ? 'text-gray-400 hover:text-blue-400' : 'text-gray-600 hover:text-blue-600'
-                  }`}>
-                    {service}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <div className="relative max-w-7xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+                    
+                    {/* Column 1: Brand Info */}
+                    <div className="md:col-span-2 lg:col-span-1">
+                        <Link to="/" className="flex items-center gap-3 mb-4">
+                            <img src={logo} alt="Room Mate Finder Logo" className="w-12 h-12 rounded-full" />
+                            <span className="font-bold text-xl">Room Mate Finder</span>
+                        </Link>
+                        <p className="text-base-content/70 text-sm leading-relaxed">
+                            Find your perfect roommate. A safe, easy, and trusted platform for everyone looking for a place to call home.
+                        </p>
+                        <div className="flex gap-3 mt-6">
+                            {socialLinks.map(({ Icon, href, name }) => (
+                                <a key={name} href={href} target="_blank" rel="noreferrer" aria-label={name} className="btn btn-ghost btn-circle">
+                                    <Icon size={20} />
+                                </a>
+                            ))}
+                        </div>
+                    </div>
 
-            {/* Quick Links */}
-            <div>
-              <h4 className="text-lg font-semibold mb-4 flex items-center">
-                <div className={`w-2 h-6 rounded-full mr-3 ${
-                  isDark ? 'bg-blue-500' : 'bg-blue-600'
-                }`}></div>
-                Quick Links
-              </h4>
-              <ul className="space-y-3">
-                {[
-                  'Sign Up',
-                  'Log In',
-                  'Help Center',
-                  'Privacy Policy',
-                  'Terms & Conditions'
-                ].map((link, index) => (
-                  <li
-                    key={index}
-                    className={`text-sm hover:translate-x-1 transition-transform duration-200 cursor-pointer ${
-                      isDark 
-                        ? 'text-gray-400 hover:text-blue-400' 
-                        : 'text-black hover:text-gray-800'
-                    }`}
-                  >
-                    {link}
-                  </li>
-                ))}
-              </ul>
-            </div>
+                    {/* Column 2: Services */}
+                    <nav>
+                        <h6 className="footer-title">Services</h6>
+                        {servicesLinks.map((link) => (
+                            // Removed <br> tag for valid React syntax
+                            <Link key={link.name} to={link.path} className="link link-hover">{link.name}<br></br></Link>
+                        ))}
+                    </nav>
 
-            {/* Contact Info */}
-            <div>
-              <h4 className="text-lg font-semibold mb-4 flex items-center">
-                <div className={`w-2 h-6 rounded-full mr-3 ${
-                  isDark ? 'bg-blue-500' : 'bg-blue-600'
-                }`}></div>
-                Contact
-              </h4>
-              <div className="space-y-4">
-                <div className="flex items-center group">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-3 transition-all duration-300 ${
-                    isDark
-                      ? 'bg-gray-800 group-hover:bg-blue-600'
-                      : 'bg-blue-500 group-hover:bg-blue-600 text-white'
-                  }`}>
-                    <Phone size={16} />
-                  </div>
-                  <div>
-                    <p className="text-xs opacity-75">Phone</p>
-                    <p className="text-sm font-medium">+880 123 456 789</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center group">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-3 transition-all duration-300 ${
-                    isDark
-                      ? 'bg-gray-800 group-hover:bg-blue-600'
-                      : 'bg-blue-500 group-hover:bg-blue-600 text-white'
-                  }`}>
-                    <Mail size={16} />
-                  </div>
-                  <div>
-                    <p className="text-xs opacity-75">Email</p>
-                    <p className="text-sm font-medium">support@roommatefinder.com</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center group">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-3 transition-all duration-300 ${
-                    isDark
-                      ? 'bg-gray-800 group-hover:bg-blue-600'
-                      : 'bg-blue-500 group-hover:bg-blue-600 text-white'
-                  }`}>
-                    <MapPin size={16} />
-                  </div>
-                  <div>
-                    <p className="text-xs opacity-75">Address</p>
-                    <p className="text-sm font-medium">Dhaka, Bangladesh</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+                    {/* Column 3: Company */}
+                    <nav>
+                        <h6 className="footer-title">Company</h6>
+                        {companyLinks.map((link) => (
+                             // Removed <br> tag for valid React syntax
+                            <Link key={link.name} to={link.path} className="link link-hover">{link.name}<br></br></Link>
+                        ))}
+                    </nav>
 
-          {/* Bottom Section */}
-          <div className={`border-t pt-8 flex flex-col md:flex-row justify-between items-center ${
-            isDark ? 'border-gray-700' : 'border-blue-300 border-opacity-30'
-          }`}>
-            <div className={`text-sm ${
-              isDark ? 'text-gray-400' : 'text-gray-600'
-            }`}>
-              &copy; {new Date().getFullYear()} RoomMate Finder. All rights reserved.
+                    {/* Column 4: Contact */}
+                    <nav>
+                        <h6 className="footer-title">Contact Us</h6>
+                        <a href="mailto:support@roommatefinder.com" className="link link-hover flex items-center gap-2">
+                            <Mail size={16} /> support@roommatefinder.com
+                        </a>
+                        <a href="tel:+880123456789" className="link link-hover flex items-center gap-2">
+                            <Phone size={16} /> +880 123 456 789
+                        </a>
+                        <div className="flex items-start gap-2 mt-2">
+                            <MapPin size={16} className="mt-1 flex-shrink-0" /> 
+                            <div>
+                                House 123, Road 45, <br />
+                                Gulshan 2, Dhaka-1212
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2 mt-2">
+                            <Clock size={16} /> 
+                            <span>Sun - Thu: 10 AM - 6 PM</span>
+                        </div>
+                    </nav>
+                </div>
+
+                {/* Bottom Section */}
+                <div className="border-t border-base-content/10 pt-8 text-center text-sm text-base-content/60">
+                    <p>&copy; {new Date().getFullYear()} Room Mate Finder. All Rights Reserved.</p>
+                </div>
             </div>
-            <div className={`text-xs mt-4 md:mt-0 flex items-center ${
-              isDark ? 'text-gray-500' : 'text-gray-500'
-            }`}>
-              <Heart size={12} className="mr-1 text-red-400" />
-              Made with love in Bangladesh
-            </div>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
+        </footer>
+    );
 };
 
 export default Footer;
