@@ -292,9 +292,7 @@ const FeaturedRoommates = () => {
   }
 
   return (
-    <div className={`p-10 transition-colors duration-200 ${
-      theme === 'dark' ? 'bg-gray-900' : 'bg-white'
-    }`}>
+    <div className="py-10">
       <Toaster 
         position="top-right"
         toastOptions={{

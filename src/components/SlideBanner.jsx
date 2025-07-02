@@ -60,7 +60,7 @@ const slides = [
 const SliderBanner = () => {
   return (
     // CHANGE: Adjusted height for mobile view
-    <div className="relative w-full h-[65vh] sm:h-[70vh] max-h-[650px] bg-base-300  overflow-hidden shadow-lg">
+    <div className="relative w-full h-[65vh] sm:h-[70vh] max-h-[650px] overflow-hidden shadow-lg">
       <Swiper
         spaceBetween={30}
         centeredSlides={true}

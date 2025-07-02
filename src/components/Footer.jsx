@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Twitter, Linkedin, Phone, Mail, MapPin, Clock } from 'lucide-react'; // Clock icon added
+import { Facebook, Twitter, Linkedin, Phone, Mail, MapPin, Clock } from 'lucide-react';
 import logo from '../assets/room-mate-logo.png'; // আপনার লোগো ফাইলের সঠিক পাথ দিন
 
 const Footer = () => {
@@ -44,9 +44,9 @@ const Footer = () => {
                             Find your perfect roommate. A safe, easy, and trusted platform for everyone looking for a place to call home.
                         </p>
                         <div className="flex gap-3 mt-6">
-                            {socialLinks.map(({ Icon, href, name }) => (
-                                <a key={name} href={href} target="_blank" rel="noreferrer" aria-label={name} className="btn btn-ghost btn-circle">
-                                    <Icon size={20} />
+                            {socialLinks.map((item) => (
+                                <a key={item.name} href={item.href} target="_blank" rel="noreferrer" aria-label={item.name} className="btn btn-ghost btn-circle">
+                                    <item.Icon size={20} />
                                 </a>
                             ))}
                         </div>

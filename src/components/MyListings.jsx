@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { AuthContext } from '../context/AuthContext';
 import { auth } from '../firebase/firebase.config';
@@ -11,7 +11,6 @@ import {
 
 const MyListings = () => {
     const { user, loading: authLoading } = useContext(AuthContext);
-    const navigate = useNavigate();
     const [myListings, setMyListings] = useState([]);
     const [likedListings, setLikedListings] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -76,7 +75,7 @@ const MyListings = () => {
                     if (!res.ok) throw new Error('Delete failed.');
                     setMyListings(prev => prev.filter(item => item._id !== id));
                     toast.success('Listing deleted successfully!');
-                } catch (error) {
+                } catch {
                     toast.error('Failed to delete listing.');
                 } finally {
                     setDeleteLoading(null);
@@ -119,11 +118,17 @@ const MyListings = () => {
                     <div className="card-body">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
                             <div className="flex items-center space-x-4">
-                                <div className="avatar placeholder">
-                                    <div className="bg-primary text-primary-content rounded-full w-16 h-16">
-                                        <span className="text-2xl font-bold">
-                                            {(user.displayName || user.email).charAt(0).toUpperCase()}
-                                        </span>
+                                <div className="avatar">
+                                    <div className="w-16 h-16 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                                        {user.photoURL ? (
+                                            <img src={user.photoURL} alt={user.displayName || 'User'} />
+                                        ) : (
+                                            <div className="bg-primary text-primary-content rounded-full w-16 h-16 flex items-center justify-center">
+                                                <span className="text-2xl font-bold">
+                                                    {(user.displayName || user.email).charAt(0).toUpperCase()}
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                                 <div>
@@ -149,40 +154,40 @@ const MyListings = () => {
 
                 {/* Stats Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div className="stat bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 shadow-lg rounded-2xl hover:shadow-xl transition-all duration-300">
-                        <div className="stat-figure text-blue-600">
+                    <div className="stat bg-base-200 border-l-4 border-primary rounded-2xl shadow-md hover:shadow-lg transition-all duration-300">
+                        <div className="stat-figure text-primary">
                             <List size={32}/>
                         </div>
-                        <div className="stat-title text-blue-700">My Listings</div>
-                        <div className="stat-value text-blue-600">{stats.totalListings}</div>
-                        <div className="stat-desc text-blue-500">Total properties</div>
+                        <div className="stat-title text-base-content/70">My Listings</div>
+                        <div className="stat-value text-primary">{stats.totalListings}</div>
+                        <div className="stat-desc text-base-content/50">Total properties</div>
                     </div>
                     
-                    <div className="stat bg-gradient-to-br from-green-50 to-green-100 border border-green-200 shadow-lg rounded-2xl hover:shadow-xl transition-all duration-300">
-                        <div className="stat-figure text-green-600">
+                    <div className="stat bg-base-200 border-l-4 border-success rounded-2xl shadow-md hover:shadow-lg transition-all duration-300">
+                        <div className="stat-figure text-success">
                             <CheckCircle size={32}/>
                         </div>
-                        <div className="stat-title text-green-700">Available</div>
-                        <div className="stat-value text-green-600">{stats.available}</div>
-                        <div className="stat-desc text-green-500">Ready to rent</div>
+                        <div className="stat-title text-base-content/70">Available</div>
+                        <div className="stat-value text-success">{stats.available}</div>
+                        <div className="stat-desc text-base-content/50">Ready to rent</div>
                     </div>
                     
-                    <div className="stat bg-gradient-to-br from-pink-50 to-pink-100 border border-pink-200 shadow-lg rounded-2xl hover:shadow-xl transition-all duration-300">
-                        <div className="stat-figure text-pink-600">
+                    <div className="stat bg-base-200 border-l-4 border-error rounded-2xl shadow-md hover:shadow-lg transition-all duration-300">
+                        <div className="stat-figure text-error">
                             <Heart size={32}/>
                         </div>
-                        <div className="stat-title text-pink-700">Total Likes</div>
-                        <div className="stat-value text-pink-600">{stats.totalLikes}</div>
-                        <div className="stat-desc text-pink-500">Likes received</div>
+                        <div className="stat-title text-base-content/70">Total Likes</div>
+                        <div className="stat-value text-error">{stats.totalLikes}</div>
+                        <div className="stat-desc text-base-content/50">Likes received</div>
                     </div>
                     
-                    <div className="stat bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 shadow-lg rounded-2xl hover:shadow-xl transition-all duration-300">
-                        <div className="stat-figure text-purple-600">
+                    <div className="stat bg-base-200 border-l-4 border-info rounded-2xl shadow-md hover:shadow-lg transition-all duration-300">
+                        <div className="stat-figure text-info">
                             <ThumbsUp size={32}/>
                         </div>
-                        <div className="stat-title text-purple-700">Interested In</div>
-                        <div className="stat-value text-purple-600">{stats.likedItems}</div>
-                        <div className="stat-desc text-purple-500">Your favorites</div>
+                        <div className="stat-title text-base-content/70">Interested In</div>
+                        <div className="stat-value text-info">{stats.likedItems}</div>
+                        <div className="stat-desc text-base-content/50">Your favorites</div>
                     </div>
                 </div>
 

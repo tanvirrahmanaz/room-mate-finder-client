@@ -36,9 +36,20 @@ const Navbar = () => {
       }
     };
 
+    const handleScroll = () => {
+      if (userPopupOpen) {
+        setUserPopupOpen(false);
+      }
+    };
+
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [userPopupOpen]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -162,8 +173,6 @@ const Navbar = () => {
                 <div 
                   className="relative group" 
                   ref={popupRef}
-                  onMouseEnter={() => setUserPopupOpen(true)}
-                  onMouseLeave={() => setUserPopupOpen(false)}
                 >
                   <button
                     onClick={() => setUserPopupOpen(!userPopupOpen)}

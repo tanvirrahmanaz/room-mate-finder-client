@@ -60,32 +60,11 @@ const Newsletter = () => {
   ];
 
   return (
-    <section className={`relative py-20 overflow-hidden transition-all duration-700 ease-in-out ${
-      isDark 
-        ? 'bg-gray-900' 
-        : 'bg-gradient-to-br from-gray-50 to-indigo-50'
-    }`}>
+    <section className="relative py-20 overflow-hidden">
       
-      {/* Enhanced Background with modern gradients */}
-      <div className={`absolute inset-0 transition-all duration-700 ${
-        isDark 
-          ? 'bg-gradient-to-br from-gray-900 via-blue-900/30 to-purple-900/40' 
-          : 'bg-gradient-to-br from-indigo-50 via-blue-50/60 to-purple-50/60'
-      }`}></div>
       
-      {/* Enhanced animated background elements */}
-      <div className={`absolute top-10 left-10 w-24 h-24 rounded-full blur-2xl animate-pulse transition-all duration-700 ${
-        isDark ? 'bg-blue-500/20' : 'bg-blue-400/30'
-      }`}></div>
-      <div className={`absolute top-40 right-20 w-36 h-36 rounded-full blur-2xl animate-pulse delay-1000 transition-all duration-700 ${
-        isDark ? 'bg-purple-500/20' : 'bg-purple-400/30'
-      }`}></div>
-      <div className={`absolute bottom-20 left-1/3 w-28 h-28 rounded-full blur-2xl animate-pulse delay-500 transition-all duration-700 ${
-        isDark ? 'bg-indigo-500/20' : 'bg-indigo-400/30'
-      }`}></div>
-      <div className={`absolute top-1/2 right-1/4 w-20 h-20 rounded-full blur-xl animate-pulse delay-[2000ms] transition-all duration-700 ${
-        isDark ? 'bg-cyan-500/15' : 'bg-cyan-400/25'
-      }`}></div>
+      
+      
       
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">

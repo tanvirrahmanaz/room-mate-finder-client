@@ -1,4 +1,3 @@
-import React from 'react';
 import SliderBanner from '../components/SlideBanner';
 import FeaturedRoommates from '../components/FeaturedRoommates';
 import WhyChooseUs from '../components/WhyChooseUs';
@@ -7,7 +6,7 @@ import HowItWorks from './HowItWorks';
 import Newsletter from './Newsletter';
 const Home = () => {
   return (
-    <div className='pt-16'>
+    <div className='pt-16 bg-base-100 min-h-screen'>
       <SliderBanner />
       <FeaturedRoommates />
       <WhyChooseUs />

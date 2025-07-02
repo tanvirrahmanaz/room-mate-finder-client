@@ -1,4 +1,5 @@
 import daisyui from 'daisyui';
+import themes from 'daisyui/src/theming/themes';
 
 export default {
   content: [
@@ -19,7 +20,7 @@ export default {
     themes: [
       {
         light: {
-          ...require("daisyui/src/theming/themes")["light"],
+          ...themes["light"],
           "primary": "#4338CA",     // A strong, inviting Indigo
           "secondary": "#EC4899",   // A vibrant Pink for secondary actions
           "accent": "#FBBF24",      // An accent color for highlights or warnings
@@ -36,7 +37,7 @@ export default {
       },
       {
         dark: {
-          ...require("daisyui/src/theming/themes")["dark"],
+          ...themes["dark"],
           "primary": "#6D28D9",      // A brighter purple for better contrast in dark mode
           "secondary": "#EC4899",    // Pink works well in dark mode too
           "accent": "#FBBF24",
